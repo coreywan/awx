@@ -9,6 +9,8 @@ import {
 
 const session = `e2e-${uuid().substr(0, 8)}`;
 const store = {};
+const scm_url = 'https://github.com/ansible/ansible-tower-samples';
+const scm_type = 'git';
 
 const getOrCreate = (endpoint, data, unique = ['name']) => {
     const identifiers = Object.keys(data).filter(key => unique.indexOf(key) > -1);
@@ -173,13 +175,13 @@ const getNotificationTemplate = (namespace = session) => getOrganization(namespa
         }
     }));
 
-const getProject = (namespace = session) => getOrganization(namespace)
-    .then(organization => getOrCreate(`/organizations/${organization.id}/projects/`, {
+const getProject = (scm_url, scm_type, namespace = session) => getOrganization(namespace)
+    .then( organization => getOrCreate(`/organizations/${organization.id}/projects/`, {
         name: `${namespace}-project`,
         description: namespace,
         organization: organization.id,
-        scm_url: 'https://github.com/ansible/ansible-tower-samples',
-        scm_type: 'git'
+        scm_url: `${scm_url}`,
+        scm_type: `${scm_type}`
     }));
 
 const waitForJob = endpoint => {
@@ -218,7 +220,7 @@ const getUpdatedProject = (namespace = session) => getProject(namespace)
         return project;
     });
 
-const getJobTemplate = (namespace = session) => {
+const getJobTemplate = (namespace = session, playbook = 'hello_world.yml') => {
     const promises = [
         getInventory(namespace),
         getAdminMachineCredential(namespace),
@@ -232,7 +234,7 @@ const getJobTemplate = (namespace = session) => {
             inventory: inventory.id,
             credential: credential.id,
             project: project.id,
-            playbook: 'hello_world.yml',
+            playbook: playbook,
         }));
 };
 
