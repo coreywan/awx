@@ -18,8 +18,15 @@ spec:
           mountPath: "/etc/tower/conf.d/"
           readOnly: true
       resources:
+{% if management_mem_limit is defined or management_cpu_limit is defined %}
         limits:
-          memory: 2Gi
+{% endif %}
+{% if management_mem_limit is defined %}
+          memory: "{{ management_mem_limit }}Gi"
+{% endif %}
+{% if management_cpu_limit is defined %}
+          cpu: "{{ management_cpu_limit }}m"
+{% endif %}
   volumes:
     - name: {{ kubernetes_deployment_name }}-application-config
       configMap:
